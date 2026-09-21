@@ -8,7 +8,7 @@ Your training journal. Two jobs: (1) track where you are, (2) **capture war stor
 
 | Phase | Status | Started | Finished | Exit criteria passed? |
 |-------|--------|---------|----------|----------------------|
-| 0 — Foundations | ⬜ not started | | | |
+| 0 — Foundations | 🟨 in progress | 2026-09-21 | | Day 1 done — cluster up, node vs pod, port-forward. See [day-1/day-1-log.md](day-1/day-1-log.md) |
 | 1 — Core Kubernetes | ⬜ | | | |
 | 2 — Advanced Ops | ⬜ | | | |
 | 3 — Security | ⬜ | | | |
@@ -54,6 +54,26 @@ Status legend: ⬜ not started · 🟨 in progress · ✅ done
 - **Fix:** what resolved it.
 - **Lesson / how I'd prevent it:** the takeaway.
 - **STAR one-liner (interview-ready):** "When [situation], I needed to [task], so I [action], which [result]."
+
+---
+
+### 2026-09-21 (Day 1) — Couldn't reach my pod by its IP
+- **Context:** first cluster, deployed an nginx pod, tried to open its IP (`10.244.2.2`) in my browser.
+- **Symptom:** `ERR_CONNECTION_TIMED_OUT`.
+- **Investigation:** noticed it *timed out* (no route) rather than being *refused* (nothing listening) — different failure classes.
+- **Root cause:** pod IPs live on the cluster-internal pod network; my Windows host isn't on it, so there's no route.
+- **Fix:** reached the pod via `kubectl port-forward` instead.
+- **Lesson:** pod IPs are non-routable from outside **and** ephemeral — which is exactly why Services and Ingress exist.
+- **STAR one-liner:** "When I couldn't reach a pod from my laptop, I recognised the timeout meant a routing problem to the internal pod network, used a port-forward to reach it, and understood why Services — not raw pod IPs — are the right abstraction."
+
+### 2026-09-21 (Day 1) — port-forward connected but returned nothing
+- **Context:** tunnelling into an nginx pod with `kubectl port-forward` on Windows/WSL2 + kind.
+- **Symptom:** `curl.exe http://localhost:8080` → `curl: (52) Empty reply from server`; browser `ERR_EMPTY_RESPONSE`.
+- **Investigation:** pod was `1/1 Running`; `kubectl logs` showed nginx up but **no access-log lines** (requests never arrived); curl failed too, ruling out the browser. Read curl error 52 (empty reply) vs 7 (refused) vs 28 (timeout) to pin the layer.
+- **Root cause:** stale/flaky port-forward tunnel (known on Windows/WSL2 + kind).
+- **Fix:** restarted the tunnel on a fresh port with explicit IPv4 (`port-forward web 9090:80`).
+- **Lesson:** isolate failures layer by layer — pod → tunnel → browser — and confirm the app is actually serving (logs) before blaming the network.
+- **STAR one-liner:** "When a port-forward returned empty responses, I confirmed the pod was healthy and serving via its logs, ruled out the browser with curl, read the exact error code to localise it to the tunnel, and fixed it by restarting the forward — turning a vague 'it's not loading' into a precise diagnosis."
 
 ---
 
