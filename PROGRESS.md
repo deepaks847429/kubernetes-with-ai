@@ -9,7 +9,7 @@ Your training journal. Two jobs: (1) track where you are, (2) **capture war stor
 | Phase | Status | Started | Finished | Exit criteria passed? |
 |-------|--------|---------|----------|----------------------|
 | 0 — Foundations | 🟨 in progress | 2026-09-21 | | Day 1 done — cluster up, node vs pod, port-forward. See [day-1/day-1-log.md](day-1/day-1-log.md) |
-| 1 — Core Kubernetes | ⬜ | | | |
+| 1 — Core Kubernetes | 🟨 in progress | 2026-09-21 | | Day 2 done — bare pod vs Deployment (self-heal/scale), Services & labels. See [day-2/day-2-log.md](day-2/day-2-log.md) |
 | 2 — Advanced Ops | ⬜ | | | |
 | 3 — Security | ⬜ | | | |
 | 4 — GitOps/Platform | ⬜ | | | |
