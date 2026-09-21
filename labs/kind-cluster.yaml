@@ -1,0 +1,26 @@
+# Default lab cluster: 1 control plane + 2 workers.
+# Rebuild anytime:  kind create cluster --name lab --config labs/kind-cluster.yaml
+# Tear down:        kind delete cluster --name lab
+#
+# Treat this cluster as disposable — destroy and rebuild it daily. That habit
+# alone teaches you more than being precious about a long-lived cluster.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: lab
+nodes:
+  - role: control-plane
+    # Expose ports so you can reach an Ingress controller from Windows host.
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 8443
+        protocol: TCP
+  - role: worker
+  - role: worker
+# Notes:
+# - Pin the node image to a specific K8s version when practicing upgrades/skew,
+#   e.g. image: kindest/node:v1.34.0 — and check the current stable at refresh time.
+# - For NetworkPolicy labs, kind's default CNI does NOT enforce policy. Install
+#   Calico or Cilium instead (disable the default CNI with networking.disableDefaultCNI: true).
